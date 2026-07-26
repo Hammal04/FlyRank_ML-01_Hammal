@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ranking Signal Analysis Using Random Forest on FlyRank Search Intelligence Data | Hammal Baloch</title>
+<meta name="description" content="A research study applying a Random Forest Regressor to FlyRank Search Intelligence data to identify which content, traffic, and engagement signals most influence search ranking position. FlyRank Machine Learning Internship Capstone by Hammal Baloch." />
+<meta name="author" content="Hammal Baloch" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Ranking Signal Analysis Using Random Forest on FlyRank Search Intelligence Data" />
+<meta property="og:description" content="Identifying the ranking signals that most influence search position, using a Random Forest Regressor trained on FlyRank Search Intelligence data." />
+<meta property="og:site_name" content="FlyRank ML Internship Capstone" />
+<meta property="og:image" content="images/feature-importance-chart.png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<div class="progress-track" aria-hidden="true">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<header class="topbar">
+  <button class="menu-toggle" id="menuToggle" aria-label="Open section navigation" aria-expanded="false" aria-controls="sidebar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  </button>
+  <a href="#home" class="topbar__brand">
+    <span class="mark">FR-ML</span>
+    <span class="title-text">Ranking Signal Analysis · Random Forest</span>
+  </a>
+  <div class="topbar__actions">
+    <span class="visually-hidden">FlyRank Machine Learning Internship Capstone</span>
+  </div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<nav class="sidebar" id="sidebar" aria-label="Paper sections">
+  <div class="sidebar__eyebrow">Contents</div>
+  <ul class="toc">
+    <li><a href="#home" class="toc-link"><span class="num">00</span>Home</a></li>
+    <li><a href="#abstract" class="toc-link"><span class="num">01</span>Abstract</a></li>
+    <li><a href="#introduction" class="toc-link"><span class="num">02</span>Introduction</a></li>
+    <li><a href="#dataset" class="toc-link"><span class="num">03</span>Dataset</a></li>
+    <li><a href="#methodology" class="toc-link"><span class="num">04</span>Methodology</a></li>
+    <li><a href="#eda" class="toc-link"><span class="num">05</span>Exploratory Data Analysis</a></li>
+    <li><a href="#model-development" class="toc-link"><span class="num">06</span>Model Development</a></li>
+    <li><a href="#results" class="toc-link"><span class="num">07</span>Results</a></li>
+    <li><a href="#feature-importance" class="toc-link"><span class="num">08</span>Feature Importance</a></li>
+    <li><a href="#discussion" class="toc-link"><span class="num">09</span>Discussion</a></li>
+    <li><a href="#recommendations" class="toc-link"><span class="num">10</span>Recommendations</a></li>
+    <li><a href="#limitations" class="toc-link"><span class="num">11</span>Limitations</a></li>
+    <li><a href="#conclusion" class="toc-link"><span class="num">12</span>Conclusion</a></li>
+    <li><a href="#references" class="toc-link"><span class="num">13</span>References</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+<main id="main">
+
+  <!-- ===================== HOME / HERO ===================== -->
+  <section id="home" class="hero">
+    <svg class="hero__canvas" id="heroCanvas" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+    <div class="hero__content">
+      <span class="hero__badge">FlyRank Machine Learning Internship &middot; Capstone Project</span>
+      <h1 class="hero__title">Ranking Signal Analysis Using Random Forest on FlyRank Search Intelligence Data</h1>
+      <div class="hero__byline">
+        <strong>Hammal Baloch</strong>
+        <span class="dot">&middot;</span>
+        <span>FlyRank ML Internship</span>
+        <span class="dot">&middot;</span>
+        <span>Capstone Research Paper</span>
+      </div>
+
+      <div class="hero__quote">
+        <span class="label">Research Question</span>
+        <p>Which content and search intelligence signals have the greatest influence on search ranking performance?</p>
+      </div>
+
+      <p class="hero__objective">
+        This research trains a Random Forest Regressor on FlyRank Search Intelligence data to predict average
+        search position and to determine which content, traffic, and engagement features contribute most to
+        search visibility &mdash; producing practical recommendations for SEO strategy and content prioritization.
+      </p>
+    </div>
+    <div class="hero__scrollcue">
+      <span>Scroll to begin reading</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M6 14l6 6 6-6"/></svg>
+    </div>
+  </section>
+
+  <!-- ===================== ABSTRACT ===================== -->
+  <section id="abstract" class="section reveal">
+    <div class="section__inner">
+      <div class="eyebrow"><span class="num">01</span>Abstract</div>
+      <h2>Abstract</h2>
+      <p>
+        Search ranking is shaped by a wide mix of content, engagement, and demand signals, and understanding which
+        of these signals matter most is central to effective SEO decision-making. This study applies a Random
+        Forest Regressor to the anonymized FlyRank Search Intelligence dataset &mdash; 4,660 records across 44
+        attributes describing content quality, search demand, competition, traffic, and user engagement &mdash; to
+        predict a page's average search position and rank the features driving that prediction.
+      </p>
+      <p>
+        After removing missing target values and duplicate records, encoding categorical fields, and selecting
+        20 candidate features, the data was split 80:20 into training and testing sets (3,728 and 932 records
+        respectively). A Random Forest Regressor with 200 estimators was trained and evaluated using Mean
+        Absolute Error, Root Mean Squared Error, and R&sup2;, achieving an MAE of 8.487, an RMSE of 12.738, and
+        an R&sup2; of 0.286. Feature importance analysis identified 90-day impressions, content age, word count,
+        character count, and click-through rate as the strongest ranking signals in the dataset. While predictive
+        accuracy is moderate, the model surfaces interpretable, actionable signals that can guide content refresh
+        and optimization priorities.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== INTRODUCTION ===================== -->
+  <section id="introduction" class="section section--alt reveal">
+    <div class="section__inner">
+      <div class="eyebrow"><span class="num">02</span>Introduction</div>
+      <h2>Introduction</h2>
+      <p>
+        Search ranking determines whether content is discovered at all. A page's average position in search
+        results governs the share of impressions that convert into clicks, sessions, and downstream engagement,
+        which makes ranking one of the highest-leverage variables in any content or SEO strategy. But ranking is
+        rarely driven by a single factor &mdash; it emerges from the interaction of content depth, freshness,
+        competitive pressure, search demand, and how users actually engage once they arrive.
+      </p>
+      <p>
+        Because that relationship between inputs and ranking outcome is non-linear and involves many interacting
+        variables, machine learning is well suited to modeling it. Rather than assuming a fixed weighting between
+        signals, a learned model can uncover which combinations of content and engagement metrics are most
+        predictive of position, and quantify their relative contribution.
+      </p>
+      <p>
+        A Random Forest Regressor was selected for this task specifically because it captures nonlinear
+        relationships between ranking signals and, unlike many black-box alternatives, provides feature
+        importance scores &mdash; giving the analysis both predictive capability and interpretability. That
+        interpretability is what turns a statistical model into a set of concrete, defensible recommendations for
+        an SEO or content team.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== DATASET ===================== -->
+  <section id="dataset" class="section reveal">
+    <div class="section__inner section__inner--wide">
+      <div class="eyebrow"><span class="num">03</span>Dataset</div>
+      <h2>Dataset</h2>
+      <p>
+        The study uses the anonymized <strong>FlyRank Search Intelligence dataset</strong>, which brings together
+        content quality metrics, search demand, engagement statistics, traffic indicators, and SEO-related
+        variables collected over a 90-day observation window. After loading, the working dataset comprised
+        4,660 records across 44 attributes, with zero duplicate rows.
+      </p>
+
+      <div class="table-wrap" style="margin-bottom: 28px;">
+        <table>
+          <thead>
+            <tr><th>Property</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Source</td><td>FlyRank Search Intelligence (anonymized), 90-day window</td></tr>
+            <tr><td>Records</td><td class="num">4,660</td></tr>
+            <tr><td>Attributes</td><td class="num">44</td></tr>
+            <tr><td>Selected model features</td><td class="num">20</td></tr>
+            <tr><td>Target variable</td><td><code>avg_position</code> &mdash; average search position</td></tr>
+            <tr><td>Duplicate rows</td><td class="num">0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="font-size:1.05rem; margin-top: 0.4em;">Selected Features</h3>
+      <p style="font-size:0.94rem; color: var(--color-muted);">
+        Twenty features were carried forward into modeling, spanning search demand, competition, content
+        characteristics, traffic, and engagement:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>Features</th></tr></thead>
+          <tbody>
+            <tr><td>Search demand &amp; competition</td><td><code>search_volume</code>, <code>competition</code>, <code>competition_level</code>, <code>cpc</code></td></tr>
+            <tr><td>Content characteristics</td><td><code>content_type</code>, <code>main_intent</code>, <code>word_count</code>, <code>char_count</code>, <code>content_age_days</code>, <code>days_since_last_update</code></td></tr>
+            <tr><td>Traffic (90-day)</td><td><code>impressions_90d</code>, <code>clicks_90d</code>, <code>sessions_90d</code>, <code>users_90d</code>, <code>ai_sessions_90d</code></td></tr>
+            <tr><td>Engagement</td><td><code>ctr</code>, <code>engagement_rate</code>, <code>scroll_rate</code>, <code>engaged_sessions_90d</code>, <code>ai_traffic_pct</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="margin-top: 24px; font-size: 0.94rem; color: var(--color-muted);">
+        Several attributes contained missing values prior to cleaning &mdash; most notably <code>provider_used</code>
+        (3,304 missing), <code>word_count</code> and <code>char_count</code> (1,222 each), and <code>model_used</code>
+        (895) &mdash; which informed the cleaning steps described in Methodology.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== METHODOLOGY ===================== -->
+  <section id="methodology" class="section section--alt reveal">
+    <div class="section__inner section__inner--wide">
+      <div class="eyebrow"><span class="num">04</span>Methodology</div>
+      <h2>Methodology</h2>
+      <p class="lede">A nine-stage pipeline carries the raw dataset through to actionable recommendations.</p>
+
+      <div class="flow" style="margin-top: 28px;">
+
+        <div class="flow__step">
+          <div class="flow__num">1</div>
+          <div><h3>Dataset</h3><p>Load the anonymized FlyRank Search Intelligence CSV — 4,660 rows &times; 44 columns.</p></div>
+        </div>
+        <div class="flow__arrow"><svg viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v14M3 12l5 5 5-5"/></svg></div>
+
+        <div class="flow__step">
+          <div class="flow__num">2</div>
+          <div><h3>Cleaning</h3><p>Remove missing target values and duplicate rows; encode categorical fields with Label Encoding.</p></div>
+        </div>
+        <div class="flow__arrow"><svg viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v14M3 12l5 5 5-5"/></svg></div>
+
+        <div class="flow__step">
+          <div class="flow__num">3</div>
+          <div><h3>Exploratory Data Analysis</h3><p>Summary statistics, missing-value analysis, correlation analysis, and distribution checks.</p></div>
+        </div>
+        <div class="flow__arrow"><svg viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v14M3 12l5 5 5-5"/></svg></div>
+
+        <div class="flow__step">
+          <div class="flow__num">4</div>
+          <div><h3>Feature Engineering</h3><p>Select 20 relevant ranking signals; transform categorical variables into numeric form.</p></div>
+        </div>
+        <div class="flow__arrow"><svg viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v14M3 12l5 5 5-5"/></svg></div>
+
+        <div class="flow__step">
+          <div class="flow__num">5</div>
+          <div><h3>Train / Test Split</h3><p>80:20 split &mdash; 3,728 training records, 932 testing records (random_state = 42).</p></div>
+        </div>
+        <div class="flow__arrow"><svg viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v14M3 12l5 5 5-5"/></svg></div>
+
+        <div class="flow__step">
+          <div class="flow__num">6</div>
+          <div><h3>Random Forest Regressor</h3><p>200 estimators, trained to predict <code>avg_position</code> from the 20 selected features.</p></div>
+        </div>
+        <div class="flow__arrow"><svg viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v14M3 12l5 5 5-5"/></svg></div>
+
+        <div class="flow__step">
+          <div class="flow__num">7</div>
+          <div><h3>Evaluation</h3><p>Score predictions on the held-out test set using MAE, RMSE, and R&sup2;.</p></div>
+        </div>
+        <div class="flow__arrow"><svg viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v14M3 12l5 5 5-5"/></svg></div>
+
+        <div class="flow__step">
+          <div class="flow__num">8</div>
+          <div><h3>Feature Importance</h3><p>Extract and rank Gini-based importance scores for every model feature.</p></div>
+        </div>
+        <div class="flow__arrow"><svg viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v14M3 12l5 5 5-5"/></svg></div>
+
+        <div class="flow__step">
+          <div class="flow__num">9</div>
+          <div><h3>Recommendations</h3><p>Translate the strongest signals into concrete, prioritized content actions.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== EDA ===================== -->
+  <section id="eda" class="section reveal">
+    <div class="section__inner section__inner--wide">
+      <div class="eyebrow"><span class="num">05</span>Exploratory Data Analysis</div>
+      <h2>Exploratory Data Analysis</h2>
+      <p>
+        Before modeling, the dataset was examined through summary statistics, missing-value analysis, correlation
+        analysis, and distribution checks across the target variable, content type, and competition level.
+      </p>
+
+      <div class="figure-grid figure-grid--single" style="margin: 28px 0;">
+        <figure class="figure-card">
+          <img src="images/correlation-heatmap.png" alt="Correlation heatmap of numeric FlyRank Search Intelligence features, showing pairwise correlation strength from -1 to 1" loading="lazy" />
+          <figcaption class="figure-card__caption"><strong>Correlation Heatmap</strong> &mdash; pairwise correlation across all numeric ranking signals, used to identify redundant or strongly related features prior to model training.</figcaption>
+        </figure>
+      </div>
+
+      <div class="eda-note">
+        The exported notebook's collapsed output cells did not retain rendered charts for the target distribution,
+        content type distribution, or competition level distribution. Per the underlying analysis code, these were
+        produced with <code>sns.histplot</code> for <code>avg_position</code> and <code>sns.countplot</code> for
+        <code>content_type</code> and <code>competition_level</code> &mdash; profiling the shape of the ranking
+        target and the categorical balance of content type and competition level ahead of feature engineering.
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MODEL DEVELOPMENT ===================== -->
+  <section id="model-development" class="section section--alt reveal">
+    <div class="section__inner section__inner--wide">
+      <div class="eyebrow"><span class="num">06</span>Model Development</div>
+      <h2>Model Development</h2>
+
+      <div class="table-wrap" style="margin-bottom: 28px;">
+        <table>
+          <thead><tr><th>Stage</th><th>Configuration</th></tr></thead>
+          <tbody>
+            <tr><td>Train / test split</td><td>80% train / 20% test &mdash; 3,728 training rows, 932 testing rows (<code>random_state=42</code>)</td></tr>
+            <tr><td>Feature encoding</td><td>Label Encoding applied to <code>competition_level</code>, <code>content_type</code>, and <code>main_intent</code></td></tr>
+            <tr><td>Algorithm</td><td><code>RandomForestRegressor</code> (scikit-learn)</td></tr>
+            <tr><td>Hyperparameters</td><td><code>n_estimators=200</code>, <code>random_state=42</code>, <code>n_jobs=-1</code></td></tr>
+            <tr><td>Target</td><td><code>avg_position</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        A Random Forest Regressor was chosen for its ability to model nonlinear interactions between ranking
+        signals without requiring manual feature transformation, and because it natively exposes feature
+        importance scores once trained. The model was fit on the training split and used to generate predictions
+        on the held-out test set, which were then compared against actual average position values.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== RESULTS ===================== -->
+  <section id="results" class="section reveal">
+    <div class="section__inner section__inner--wide">
+      <div class="eyebrow"><span class="num">07</span>Results</div>
+      <h2>Results</h2>
+      <p>The trained Random Forest Regressor was evaluated on the 932-record test set using three standard regression metrics.</p>
+
+      <div class="stat-grid" style="margin-top: 24px;">
+        <div class="stat-card stat-card--accent">
+          <div class="stat-label">Mean Absolute Error</div>
+          <div class="stat-value">8.487</div>
+          <p class="stat-desc">Average absolute deviation between predicted and actual position.</p>
+        </div>
+        <div class="stat-card stat-card--accent">
+          <div class="stat-label">RMSE</div>
+          <div class="stat-value">12.738</div>
+          <p class="stat-desc">Root mean squared error, penalizing larger prediction misses more heavily.</p>
+        </div>
+        <div class="stat-card stat-card--accent">
+          <div class="stat-label">R&sup2; Score</div>
+          <div class="stat-value">0.286</div>
+          <p class="stat-desc">Share of variance in average position explained by the model.</p>
+        </div>
+      </div>
+
+      <div class="figure-grid">
+        <figure class="figure-card">
+          <img src="images/actual-vs-predicted.png" alt="Scatter plot of actual versus predicted average search position, with a red diagonal reference line" loading="lazy" />
+          <figcaption class="figure-card__caption"><strong>Actual vs. Predicted Rankings</strong> &mdash; predictions cluster reasonably well for top-ranking pages but spread further from the diagonal as actual position increases.</figcaption>
+        </figure>
+        <figure class="figure-card">
+          <img src="images/residual-plot.png" alt="Residual plot of prediction errors against predicted position, showing residuals scattered around zero" loading="lazy" />
+          <figcaption class="figure-card__caption"><strong>Residual Plot</strong> &mdash; residuals center around zero with wider spread at lower predicted positions, consistent with the moderate R&sup2;.</figcaption>
+        </figure>
+      </div>
+
+      <p style="margin-top: 24px;">
+        Feature importance analysis revealed that impressions over the last 90 days, content age, word count,
+        character count, and click-through rate were the strongest ranking signals in the dataset.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== FEATURE IMPORTANCE ===================== -->
+  <section id="feature-importance" class="section section--alt reveal">
+    <div class="section__inner section__inner--wide">
+      <div class="eyebrow"><span class="num">08</span>Feature Importance</div>
+      <h2>Feature Importance</h2>
+      <p>
+        Random Forest exposes a feature importance score for every input, estimating each signal's contribution
+        to predicting average search position. Higher scores indicate stronger influence on the outcome.
+      </p>
+
+      <div class="figure-grid figure-grid--single" style="margin: 26px 0;">
+        <figure class="figure-card">
+          <img src="images/feature-importance-chart.png" alt="Horizontal bar chart ranking all 20 ranking signals by Random Forest feature importance score, from impressions_90d at top to ai_sessions_90d at bottom" loading="lazy" />
+          <figcaption class="figure-card__caption"><strong>Top Ranking Signals Identified by Random Forest</strong> &mdash; full ranking of all 20 modeled features by importance score.</figcaption>
+        </figure>
+      </div>
+
+      <h3 style="font-size:1.02rem;">Top 10 Ranking Signals</h3>
+      <div class="table-wrap">
+        <table class="rank-table">
+          <thead>
+            <tr><th>Rank</th><th>Feature</th><th class="num">Importance</th><th>Relative</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="num">1</td><td class="feature"><code>impressions_90d</code></td><td class="num">0.1689</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></td></tr>
+            <tr><td class="num">2</td><td class="feature"><code>content_age_days</code></td><td class="num">0.1435</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:85%"></div></div></td></tr>
+            <tr><td class="num">3</td><td class="feature"><code>word_count</code></td><td class="num">0.0982</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div></td></tr>
+            <tr><td class="num">4</td><td class="feature"><code>char_count</code></td><td class="num">0.0869</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:51%"></div></div></td></tr>
+            <tr><td class="num">5</td><td class="feature"><code>ctr</code></td><td class="num">0.0801</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:47%"></div></div></td></tr>
+            <tr><td class="num">6</td><td class="feature"><code>search_volume</code></td><td class="num">0.0592</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:35%"></div></div></td></tr>
+            <tr><td class="num">7</td><td class="feature"><code>days_since_last_update</code></td><td class="num">0.0492</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:29%"></div></div></td></tr>
+            <tr><td class="num">8</td><td class="feature"><code>competition</code></td><td class="num">0.0472</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:28%"></div></div></td></tr>
+            <tr><td class="num">9</td><td class="feature"><code>scroll_rate</code></td><td class="num">0.0448</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:27%"></div></div></td></tr>
+            <tr><td class="num">10</td><td class="feature"><code>clicks_90d</code></td><td class="num">0.0432</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:26%"></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="font-size:1.02rem; margin-top:30px;">What the top signals mean</h3>
+      <ul>
+        <li><strong>Impressions (90d)</strong> &mdash; the clearest signal in the model; pages already earning search visibility tend to keep or improve position.</li>
+        <li><strong>Content age</strong> &mdash; older content shows a strong relationship to ranking, reinforcing the value of a refresh cadence.</li>
+        <li><strong>Word count &amp; character count</strong> &mdash; content depth and length remain meaningfully predictive of ranking outcomes.</li>
+        <li><strong>Click-through rate</strong> &mdash; how compelling a result is once shown, independent of raw visibility.</li>
+        <li><strong>Search volume, recency of updates, and competition</strong> &mdash; secondary but non-trivial contributors describing demand and competitive context.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== DISCUSSION ===================== -->
+  <section id="discussion" class="section reveal">
+    <div class="section__inner">
+      <div class="eyebrow"><span class="num">09</span>Discussion</div>
+      <h2>Discussion</h2>
+      <p>
+        The analysis indicates that search visibility is influenced by multiple factors rather than a single
+        metric. Content freshness, search impressions, content depth, and user engagement collectively contribute
+        to ranking performance, rather than any one variable dominating the outcome.
+      </p>
+      <p>
+        Although the predictive performance is moderate &mdash; an R&sup2; of 0.286 leaves a substantial share of
+        variance unexplained &mdash; the model successfully identifies meaningful ranking signals that can guide
+        SEO decision-making. The value of this analysis lies less in precise position forecasting and more in
+        surfacing which levers are worth pulling first.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== RECOMMENDATIONS ===================== -->
+  <section id="recommendations" class="section section--alt reveal">
+    <div class="section__inner section__inner--wide">
+      <div class="eyebrow"><span class="num">10</span>Recommendations</div>
+      <h2>Recommendations</h2>
+      <p>Based on the findings, five actions are proposed for content and SEO teams.</p>
+
+      <div class="rec-grid" style="margin-top: 24px;">
+        <div class="rec-card">
+          <div class="rec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+          </div>
+          <h3>Refresh older content regularly</h3>
+          <p>Content age was the second-strongest predictor of ranking &mdash; a routine refresh cadence directly targets this signal.</p>
+        </div>
+        <div class="rec-card">
+          <div class="rec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H4v4M16 4h4v4M8 20H4v-4M16 20h4v-4"/></svg>
+          </div>
+          <h3>Expand low word-count articles</h3>
+          <p>Word count and character count both rank in the top four signals, suggesting shallow pages carry a measurable disadvantage.</p>
+        </div>
+        <div class="rec-card">
+          <div class="rec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+          </div>
+          <h3>Fix high-impression, low-click pages</h3>
+          <p>Pages that already earn impressions but not clicks represent the fastest path to improved CTR &mdash; and CTR is a top-five signal.</p>
+        </div>
+        <div class="rec-card">
+          <div class="rec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h16"/></svg>
+          </div>
+          <h3>Improve titles &amp; meta descriptions</h3>
+          <p>Sharper on-SERP copy is the most direct lever for lifting CTR without changing underlying content.</p>
+        </div>
+        <div class="rec-card">
+          <div class="rec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.6L22 9.3l-5 4.9 1.2 7-6.2-3.4L5.8 21.2 7 14.2l-5-4.9 7.1-.7L12 2z"/></svg>
+          </div>
+          <h3>Prioritize high-potential pages first</h3>
+          <p>Optimize existing content with strong impressions or search volume before investing in net-new pages.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LIMITATIONS ===================== -->
+  <section id="limitations" class="section reveal">
+    <div class="section__inner">
+      <div class="eyebrow"><span class="num">11</span>Limitations</div>
+      <h2>Limitations</h2>
+      <div class="callout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div>
+          <p><strong>Historical, anonymized scope.</strong> This research is based on historical anonymized FlyRank data. Several external ranking factors, such as backlinks, technical SEO, and algorithm updates, were not included.</p>
+          <p><strong>Association, not causation.</strong> The results should be interpreted as identifying associations rather than establishing direct causal relationships.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONCLUSION ===================== -->
+  <section id="conclusion" class="section section--alt reveal">
+    <div class="section__inner">
+      <div class="eyebrow"><span class="num">12</span>Conclusion</div>
+      <h2>Conclusion</h2>
+      <p>
+        This study applied a Random Forest Regressor to identify important ranking signals using FlyRank Search
+        Intelligence data. The results demonstrate that impressions, content freshness, content length, and
+        engagement metrics have the greatest influence on search ranking performance.
+      </p>
+      <p>
+        The proposed methodology provides an interpretable and reproducible framework for identifying optimization
+        opportunities and supporting data-driven SEO strategies.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== REFERENCES ===================== -->
+  <section id="references" class="section reveal">
+    <div class="section__inner">
+      <div class="eyebrow"><span class="num">13</span>References</div>
+      <h2>References</h2>
+      <ul class="ref-list">
+        <li>FlyRank Machine Learning Internship Dataset (anonymized Search Intelligence data).</li>
+        <li>Scikit-learn Documentation &mdash; <a href="https://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
+        <li>Pandas Documentation &mdash; <a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas.pydata.org</a></li>
+        <li>NumPy Documentation &mdash; <a href="https://numpy.org/" target="_blank" rel="noopener">numpy.org</a></li>
+        <li>Matplotlib Documentation &mdash; <a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <h3>Hammal Baloch</h3>
+      <p>FlyRank Machine Learning Internship &mdash; Capstone Project</p>
+      <p>Ranking Signal Analysis Using Random Forest on FlyRank Search Intelligence Data</p>
+    </div>
+    <div class="footer-links">
+      <a href="#" target="_blank" rel="noopener">GitHub</a>
+      <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2026 Hammal Baloch &middot; Built for the FlyRank ML Internship
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="script.js"></script>
+</body>
+</html>
